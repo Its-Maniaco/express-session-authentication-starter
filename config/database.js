@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+const { Sequelize, DataTypes } = require('sequelize');
 
 require('dotenv').config();
 
@@ -15,20 +15,37 @@ require('dotenv').config();
 
 const conn = process.env.DB_STRING;
 
-const connection = mongoose.createConnection(conn, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
+const sequelize = new Sequelize(conn, {
+    dialect: 'postgres',
+    logging: false
 });
 
 // Creates simple schema for a User.  The hash and salt are derived from the user's given password when they register
-const UserSchema = new mongoose.Schema({
-    username: String,
-    hash: String,
-    salt: String
+const User = sequelize.define('User', {
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    hash: {
+        type: DataTypes.STRING,
+        allowNull: false
+    },
+    salt: {
+        type: DataTypes.STRING,
+        allowNull: false
+    }
+}, {
+    tableName: 'users',
+    timestamps: false
 });
 
+// Expose the connection and User model
+module.exports = {
+    sequelize,
+    User
+};
 
-const User = connection.model('User', UserSchema);
-
-// Expose the connection
-module.exports = connection;
+// Sync the model with the database
+sequelize.sync()
+    .then(() => console.log('Database & tables created!'))
+    .catch(error => console.error('Error creating database:', error));
