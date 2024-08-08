@@ -12,6 +12,9 @@ const MongoStore = require('connect-mongo')(session);
 // Need to require the entire Passport config module so app.js knows about it
 require('./config/passport');
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 /**
  * -------------- GENERAL SETUP ----------------
  */
